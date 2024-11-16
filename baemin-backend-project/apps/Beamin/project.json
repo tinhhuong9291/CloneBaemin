@@ -1,0 +1,26 @@
+{
+  "name": "Beamin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/Beamin/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "Beamin:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "Beamin:build:development"
+        },
+        "production": {
+          "buildTarget": "Beamin:build:production"
+        }
+      }
+    }
+  }
+}
