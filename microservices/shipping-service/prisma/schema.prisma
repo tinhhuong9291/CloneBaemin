@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model shipping {
+  ship_id   BigInt  @id @unique(map: "ship_id") @default(autoincrement()) @db.UnsignedBigInt
+  order_id  Int?
+  full_name String? @db.VarChar(255)
+  email     String? @db.VarChar(255)
+  phone     String? @db.VarChar(15)
+  address   String? @db.Text
+}
