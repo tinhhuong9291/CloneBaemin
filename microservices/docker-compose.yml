@@ -1,0 +1,56 @@
+version: "3"
+services: # nơi build image và tạo container
+  api-gateway:
+    container_name: api-gateway
+    build: ./api-getway # docker build . -t ...
+    # image: undertarke/nodeadv02 # build bằng hub docker
+    ports:
+      - 8080:8080
+    networks:
+      - node-network
+  notify-service:
+    container_name: notify-service
+    build: ./notify-service
+    networks:
+      - node-network
+
+  order-service:
+    container_name: order-service
+    build: ./order-service
+    networks:
+      - node-network
+
+  product-service:
+    container_name: product-service
+    build: ./product-service
+    # environment:
+    #   - DATABASE_URL=postgresql://postgres:1234@some-postgres:5432/db_amazon
+    #   - REDIS_HOST=some-redis
+    #   - REDIS_PORT=6379
+    networks:
+      - node-network
+
+  shipping-service:
+    container_name: shipping-service
+    build: ./shipping-service
+    networks:
+      - node-network
+
+  user-service:
+    container_name: user-service
+    build: ./user-service
+    networks:
+      - node-network
+
+  cart-service:
+    container_name: cart-service
+    build: ./cart-service
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    external: true # sử dụng mạng có sẵn trước đó
+
+
+  # docker-compose up -d
