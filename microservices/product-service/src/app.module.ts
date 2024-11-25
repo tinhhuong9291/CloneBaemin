@@ -10,11 +10,11 @@ import { RedisCacheModule } from './redis-cache/redis-cache.module';
   imports: [PrismaModule, ConfigModule.forRoot({ isGlobal: true }),
     ClientsModule.register([
       {
-        name: "SHIPPING_NAME",
+        name: "PRODUCT_NAME",
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://admin:1234@localhost:5672'],
-          queue: "shipping_queue",
+          queue: "product_queue",
           queueOptions: {
             durable: true
           },

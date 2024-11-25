@@ -23,10 +23,10 @@ services: # nơi build image và tạo container
   product-service:
     container_name: product-service
     build: ./product-service
-    # environment:
-    #   - DATABASE_URL=postgresql://postgres:1234@some-postgres:5432/db_amazon
-    #   - REDIS_HOST=some-redis
-    #   - REDIS_PORT=6379
+    environment:
+      #   - DATABASE_URL=postgresql://postgres:1234@some-postgres:5432/db_amazon
+      - REDIS_HOST=some-redis
+      - REDIS_PORT=6379
     networks:
       - node-network
 
