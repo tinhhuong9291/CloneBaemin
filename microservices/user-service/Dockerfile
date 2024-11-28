@@ -6,9 +6,9 @@ COPY package.json .
 
 RUN yarn install
 
-COPY ./src/prisma ./src/prisma 
+COPY ./prisma ./prisma 
 
-RUN yarn prisma generate --schema src/prisma/schema.prisma 
+RUN yarn prisma generate --schema ./prisma/schema.prisma 
 
 COPY . .
 

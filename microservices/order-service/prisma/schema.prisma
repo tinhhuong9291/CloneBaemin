@@ -3,6 +3,53 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+
+model Order {
+  order_id       String    @id @map("_id")
+  user_id        String    
+  address_id     String    
+  voucher_id     String?   
+  store_id       String    
+  method_id      String?   
+  message        String?   
+  total_discount Int?
+  total_price    Int
+  service_fee    Int?
+  shipping_price Int?
+  status         String    @default("pending")
+  is_removed     Boolean   @default(false)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  order_foods    OrderFood[]
+  payments       Payment[]
+}
+
+model OrderFood {
+  order_food_id  String    @id @map("_id")
+  order_id       String    
+  food_id        String    
+  option_id      String?
+  quantity       Int
+  price_at_time_of_order Int
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  Order          Order     @relation(fields: [order_id], references: [order_id])
+}
+
+model Payment {
+  payment_id         String    @id @map("_id")
+  order_id           String    
+  payment_method_id  String    
+  amount             Int
+  status             String?   @default("pending")
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  Order              Order     @relation(fields: [order_id], references: [order_id])
 }
