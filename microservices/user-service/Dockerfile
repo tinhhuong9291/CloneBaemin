@@ -16,5 +16,5 @@ RUN yarn build
 
 CMD ["yarn","start:prod"]
 
-# docker build . -t notify-service
-# docker run -d --name notify-service --net node-network -e REDIS_HOST=some-redis -e EDIS_PORT=6379 -e ... notify-service
+# docker build . -t user-service
+# docker run -d --name user-service --net node-network -e REDIS_HOST=some-redis -e EDIS_PORT=6379 -e ... user-service

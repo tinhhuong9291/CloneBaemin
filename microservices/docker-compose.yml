@@ -7,18 +7,52 @@ services: # nơi build image và tạo container
     ports:
       - 8080:8080
     networks:
-      - node-network
+      - baemin
   notify-service:
     container_name: notify-service
     build: ./notify-service
     networks:
-      - node-network
+      - baemin
 
   order-service:
     container_name: order-service
     build: ./order-service
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - DATABASE_URL=mongodb://root:password123@mongodb-primary:27017/
     networks:
-      - node-network
+      - baemin
+
+  food-service:
+    container_name: food-service
+    build: ./food-service
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - DATABASE_URL=mongodb://root:password123@mongodb-primary:27017/
+    networks:
+      - baemin
+    ports:
+      - "8080:8080"
+
+  mongodb-primary:
+    image: docker.io/bitnami/mongodb:8.0
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    volumes:
+      - "mongodb_master_data:/bitnami/mongodb"
+    ports:
+      - "27017:27017"
+    networks:
+      - baemin
 
   product-service:
     container_name: product-service
@@ -28,29 +62,34 @@ services: # nơi build image và tạo container
       - REDIS_HOST=some-redis
       - REDIS_PORT=6379
     networks:
-      - node-network
+      - baemin
 
   shipping-service:
     container_name: shipping-service
     build: ./shipping-service
     networks:
-      - node-network
+      - baemin
 
   user-service:
     container_name: user-service
     build: ./user-service
     networks:
-      - node-network
+      - baemin
 
   cart-service:
     container_name: cart-service
     build: ./cart-service
     networks:
-      - node-network
+      - baemin
+
+  auth-service:
+    container_name: auth-service
+    build: ./auth-service
+    networks:
+      - baemin
 
 networks:
-  node-network:
+  baemin:
     external: true # sử dụng mạng có sẵn trước đó
 
-
-  # docker-compose up -d
+# docker-compose up -d

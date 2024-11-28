@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,403 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  first_name      String?   @db.VarChar(50)
+  last_name       String?   @db.VarChar(50)
+  email           String    @unique @db.VarChar(255)
+  password        String    @db.VarChar(255)
+  role            String?   @db.VarChar(10)
+  phone           String?   @db.VarChar(20)
+  gender          String?   @db.VarChar(10)
+  avatar          String?   @db.Text
+  cover_photo     String?   @db.Text
+  created_at      DateTime? @default(now())
+  updated_at      DateTime? @updatedAt
+  pass_changed_at DateTime?
+  status         	Boolean?  @default(false)
+
+  address        	Address[]
+  carts          	Cart[]
+	reviews				  Review[]
+  orders         	Order[]
+	banners					Banner[]
+	refresh_tokens  RefreshToken[]
+	sessions		    UserSession[]
+	providers				UserProvider[]
+	favorite_foods  FavoriteFood[]
+}
+
+model UserProvider {
+  id                       Int       @id @default(autoincrement())
+  user_id                  String    @db.Uuid
+  provider                 String    @db.VarChar(50)
+  provider_id              String    @db.VarChar(255)
+  provider_email           String?   @db.VarChar(100)
+  provider_profile_picture String?   @db.Text
+  access_token             String?   @db.Text
+  refresh_token            String?   @db.Text
+  expires_at               DateTime?
+  created_at               DateTime? @default(now())
+
+  User                     User      @relation(fields: [user_id], references: [id])
+}
+
+model RefreshToken {
+  id              Int         @id @default(autoincrement())
+  user_id         String      @db.Uuid
+  token           String      @db.Text
+  device_info     String?     @db.Text
+  ip_address      String?     @db.VarChar(45)
+  user_agent      String?     @db.Text
+  created_at      DateTime?   @default(now())
+	updated_at      DateTime?   @updatedAt
+
+  User            User        @relation(fields: [user_id], references: [id])
+}
+
+model UserSession {
+ 	id              Int         @id @default(autoincrement())
+  user_id         String      @db.Uuid
+	login_at				DateTime?		@default(now())
+	logout_at				DateTime?
+  user_agent      String?     @db.Text
+  created_at      DateTime?   @default(now())
+	updated_at      DateTime? @updatedAt
+
+  User            User        @relation(fields: [user_id], references: [id])
+}
+
+model Banner {
+  id              Int       @id @default(autoincrement())
+	name						String		@db.VarChar(50)
+	slug						String?		@db.Text
+  url     			  String    @db.Text
+	link						String?		@db.Text
+	description			String? 	@db.Text
+	is_removed			Boolean?  @default(false)
+	created_by			String		@db.Uuid
+  created_at      DateTime? @default(now())
+  updated_at      DateTime? @updatedAt
+
+	User      			User      @relation(fields: [created_by], references: [id])
+}
+
+model Food {
+  food_id        Int       @id @default(autoincrement())
+  name           String    @db.VarChar(255)
+	slug					 String?	 @db.Text
+  price          Decimal	 @db.Decimal(10, 2)
+  description    String?   @db.Text
+  is_available   Boolean?	 @default(true)
+  store_id       Int
+  promotion_id   Int?
+  tags           String?
+  stock_quantity Int				@default(0)
+	is_removed	   Boolean?   @default(false)
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @updatedAt
+
+  Store          Store      @relation(fields: [store_id], references: [store_id])
+	Promotion      Promotion? @relation(fields: [promotion_id], references: [promotion_id])
+
+  order_foods    OrderFood[]
+  carts          Cart[]
+	reviews				 Review[]
+	menus          MenuFood[]
+	favorite_foods FavoriteFood[]
+	options				 FoodOption[]
+	order_food_options OrderFoodOption[]
+	images          FoodImage[]
+}
+
+model FoodImage {
+  image_id        Int           @id @default(autoincrement())
+  food_id         Int
+  image_url       String        @db.Text
+  is_primary      Boolean       @default(false)
+	description     String?       @db.VarChar(255)
+  created_at      DateTime      @default(now())
+
+  Food            Food          @relation(fields: [food_id], references: [food_id])
+
+  @@index([food_id])
+}
+
+model FoodOption {
+  option_id      Int        @id @default(autoincrement())
+  food_id        Int
+  name           String     @db.VarChar(255)
+  description    String?    @db.VarChar(255)
+	price          Decimal?   @db.Decimal(10, 2)
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @updatedAt
+
+  Food           Food       @relation(fields: [food_id], references: [food_id])
+  choices        FoodOptionChoice[]
+}
+
+model FoodOptionChoice {
+  choice_id      Int        @id @default(autoincrement())
+  option_id      Int
+  name           String     @db.VarChar(255)
+  price          Int?
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @updatedAt
+
+  FoodOption     FoodOption @relation(fields: [option_id], references: [option_id])
+	order_food_options OrderFoodOption[]
+}
+
+model OrderFoodOption{
+	order_id			 Int
+	choice_id      Int
+  food_id        Int
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @updatedAt
+
+  Order            Order            @relation(fields: [order_id], references: [order_id])
+  FoodOptionChoice FoodOptionChoice @relation(fields: [choice_id], references: [choice_id])
+	Food             Food             @relation(fields: [food_id], references: [food_id])
+
+  @@id([order_id, food_id, choice_id])
+}
+
+model MenuFood {
+  menu_id        Int
+  food_id        Int
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  Food           Food      @relation(fields: [food_id], references: [food_id])
+  Menu           Menu      @relation(fields: [menu_id], references: [menu_id])
+
+  @@id([menu_id, food_id])
+}
+
+model Menu {
+  menu_id        Int       @id @default(autoincrement())
+  name           String    @db.VarChar(255)
+  image          String?	 @db.Text
+  parent_id      Int?
+	is_removed		 Boolean?  @default(false)
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  foods          MenuFood[]
+}
+
+model FavoriteFood {
+  user_id        String    @db.Uuid
+  food_id        Int
+	added_at       DateTime? @default(now())
+
+  User           User      @relation(fields: [user_id], references: [id])
+  Food           Food      @relation(fields: [food_id], references: [food_id])
+  @@id([user_id, food_id])
+}
+
+model Store {
+  store_id     	 Int       @id @default(autoincrement())
+  store_name     String    @db.VarChar(255)
+  description    String?   @db.Text
+  address        String    @db.Text
+	images				 String?	 @db.Text
+  phone          String    @db.VarChar(15)
+  email          String?   @unique @db.VarChar(255)
+  website        String?   @db.VarChar(255)
+  opening_hours  String?   @db.VarChar(50)
+  closing_hours  String?   @db.VarChar(50)
+  rating         Decimal?  @db.Decimal(3, 2)
+	is_removed	   Boolean?  @default(false)
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  foods          Food[]
+  orders         Order[]
+	stores_shipping_partner    StoreShippingPartner[]
+}
+
+model ShippingPartner {
+  partner_id     Int        @id @default(autoincrement())
+  partner_name   String     @db.VarChar(255)
+  service_fee    Decimal?   @db.Decimal(10, 2)
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @updatedAt
+
+  shipping_methods ShippingPartnerMethod[]
+	stores_shipping_partner    StoreShippingPartner[]
+}
+
+model StoreShippingPartner  {
+  store_id          Int
+  partner_id        Int
+  assigned_at       DateTime        @default(now())
+
+  store             Store           @relation(fields: [store_id], references: [store_id])
+  shipping_partner  ShippingPartner @relation(fields: [partner_id], references: [partner_id])
+  @@id([store_id, partner_id])
+}
+
+model Order {
+  order_id       Int       @id @default(autoincrement())
+  address_id     Int
+  user_id        String    @db.Uuid
+  voucher_id     Int?
+  store_id       Int
+  method_id      Int?
+  message        String?   @db.VarChar(255)
+  total_discount Int?
+  total_price    Int?
+  status         String?   @db.VarChar(50)
+  service_fee    Int?
+  shipping_price Int?
+	is_removed		 Boolean?  @default(false)
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  User           User      @relation(fields: [user_id], references: [id])
+  Store          Store     @relation(fields: [store_id], references: [store_id])
+	Voucher        Voucher?  @relation(fields: [voucher_id], references: [voucher_id])
+	ShippingMethod ShippingMethod? @relation(fields: [method_id], references: [method_id])
+
+  order_foods    OrderFood[]
+	payments       Payment[]
+	order_food_options OrderFoodOption[]
+}
+
+model Payment {
+  payment_id         Int          @id @default(autoincrement())
+  order_id           Int
+  payment_method_id  Int
+  amount             Int
+  status             String?       @db.VarChar(50)
+  created_at         DateTime?     @default(now())
+  updated_at         DateTime?     @updatedAt
+
+	Order							 Order 				 @relation(fields: [order_id], references: [order_id])
+  PaymentMethod      PaymentMethod @relation(fields: [payment_method_id], references: [payment_method_id])
+}
+
+model PaymentMethod {
+  payment_method_id  Int        @id @default(autoincrement())
+  method_name        String     @db.VarChar(50)
+  description        String?    @db.Text
+  transaction_fee    Decimal?   @db.Decimal(10, 2)
+  is_active          Boolean
+	created_at         DateTime?  @default(now())
+  updated_at         DateTime?  @updatedAt
+
+  payments            Payment[]
+}
+
+model OrderFood {
+  order_id           Int
+  food_id            Int
+  quantity           Int
+  discount_at_order  Decimal?   @db.Decimal(10, 2)
+  price_at_time_of_order Int
+  created_at         DateTime?  @default(now())
+  updated_at         DateTime?  @updatedAt
+
+  Order              Order      @relation(fields: [order_id], references: [order_id])
+  Food               Food       @relation(fields: [food_id], references: [food_id])
+  @@id([order_id, food_id])
+}
+
+model Review {
+  review_id      Int       @id @default(autoincrement())
+  user_id        String    @db.Uuid
+  food_id        Int
+  rating         Int       @db.Integer
+  comment        String?   @db.Text
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  User           User      @relation(fields: [user_id], references: [id])
+  Food           Food      @relation(fields: [food_id], references: [food_id])
+
+  @@unique([user_id, food_id])
+}
+
+model Cart {
+  user_id        String    @db.Uuid
+  food_id        Int
+  quantity       Int
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  User           User      @relation(fields: [user_id], references: [id])
+  Food           Food      @relation(fields: [food_id], references: [food_id])
+  @@id([user_id, food_id])
+}
+
+model Address {
+  address_id     Int       @id @default(autoincrement())
+  user_id        String    @db.Uuid
+  address_line1  String    @db.VarChar(255)
+  address_line2  String?   @db.VarChar(255)
+  city           String    @db.VarChar(100)
+  postal_code    String    @db.VarChar(20)
+  address_type   String    @db.VarChar(50)
+  latitude       Decimal?  @db.Decimal(9, 6)
+  longitude      Decimal?  @db.Decimal(9, 6)
+	is_removed		 Boolean?  @default(false)
+	created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  User           User      @relation(fields: [user_id], references: [id])
+}
+
+model Voucher {
+  voucher_id   Int       @id @default(autoincrement())
+  code         String    @unique @db.VarChar(50)
+  discount     Int
+  expiration   DateTime?
+	is_removed	 Boolean?  @default(false)
+  created_at   DateTime? @default(now())
+  updated_at   DateTime? @updatedAt
+
+  orders       Order[]
+}
+
+model Promotion {
+  promotion_id   Int       @id @default(autoincrement())
+  description    String?   @db.VarChar(255)
+  discount       Int
+  start_at       DateTime?
+  end_at         DateTime?
+	is_removed	   Boolean?  @default(false)
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+
+  foods          Food[]
+}
+
+model ShippingMethod {
+  method_id      Int        @id @default(autoincrement())
+  shipping_name  String     @db.VarChar(255)
+  shipping_price Int
+  shipping_time  String?    @db.VarChar(100)
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @updatedAt
+
+  shipping_partners ShippingPartnerMethod[]
+	orders				Order[]
+}
+
+
+
+model ShippingPartnerMethod {
+  partner_id     Int
+  method_id      Int
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @updatedAt
+
+  ShippingMethod ShippingMethod @relation(fields: [method_id], references: [method_id])
+  ShippingPartner ShippingPartner @relation(fields: [partner_id], references: [partner_id])
+
+  @@id([partner_id, method_id])
 }
