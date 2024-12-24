@@ -1,5 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { AbstractDocument } from 'src/database/abstract.schema';
+import * as mongoose from 'mongoose';
 
 @Schema({ versionKey: false })
 export class Order extends AbstractDocument {

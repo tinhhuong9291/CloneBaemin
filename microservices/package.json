@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "start:user": "nest start user-service",
+    "start:product": "nest start product-service",
+    "start:order": "nest start order-service",
+    "start:gateway": "nest start api-gateway",
+    "dev": "concurrently \"yarn start:user\" \"yarn start:product\" \"yarn start:order\" \"yarn start:gateway\""
+  },
   "dependencies": {
     "@nestjs/common": "^10.4.7",
     "@nestjs/config": "^3.3.0",

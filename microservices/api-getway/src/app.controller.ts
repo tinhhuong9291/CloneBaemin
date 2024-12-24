@@ -5,39 +5,45 @@ import { catchError, lastValueFrom, of, retry, timeout } from 'rxjs';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService,
-    @Inject("PRODUCT_NAME") private productService: ClientProxy,
-    @Inject("NOTIFY_NAME") private notifyService: ClientProxy,
-  ) { }
+  constructor(
+    private readonly appService: AppService,
+    @Inject('PRODUCT_NAME') private productService: ClientProxy,
+    @Inject('NOTIFY_NAME') private notifyService: ClientProxy,
+    @Inject('ORDER_NAME') private orderService: ClientProxy,
+    @Inject('USER_NAME') private userService: ClientProxy,
+    // @Inject('ADDRESS_NAME') private addressService: ClientProxy,
+    // @Inject('CART_NAME') private cartService: ClientProxy,
+    // @Inject('FOOD_NAME') private foodService: ClientProxy,
+    // @Inject('AUTH_NAME') private authService: ClientProxy,
+  ) {}
 
-  @Get("/get-product")
+  @Get('/get-product')
   async getHello() {
-
-    let dataProduct = await lastValueFrom(this.productService.send("get_product", "hello"))
+    let dataProduct = await lastValueFrom(
+      this.productService.send('get_product', 'hello'),
+    );
     return dataProduct;
   }
 
-  @Post("/order")
+  @Post('/order')
   async order(@Body() order) {
     let { email, product_id, user_id, full_name, phone, address } = order;
 
-    // gửi mail xác nhận đơn hàng    
-    await this.notifyService.emit("confirm_order", email)
-
+    // gửi mail xác nhận đơn hàng
+    await this.notifyService.emit('confirm_order', email);
 
     // lưu order
-    let order_data = await lastValueFrom(this.productService.send("order_key", order).pipe(
-      timeout(1000),
-      retry(3),
-      catchError(err => {
-        console.log("Service product not active")
-        return of("Service product not active")
-      })
-    ));
+    let order_data = await lastValueFrom(
+      this.productService.send('order_key', order).pipe(
+        timeout(1000),
+        retry(3),
+        catchError((err) => {
+          console.log('Service product not active');
+          return of('Service product not active');
+        }),
+      ),
+    );
 
-
-
-    return "Đặt hàng thành công"
-
+    return 'Đặt hàng thành công';
   }
 }

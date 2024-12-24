@@ -11,10 +11,15 @@ import * as Joi from 'joi';
 @Module({
   imports: [
     DatabaseModule,
+    MongooseModule.forRoot(
+      'mongodb+srv://tien3186tn:tTPjjs3QEiKutkx7@cluster0.0twk0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
+    ),
+
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
         // Check this line
+
         MONGODB_URI: Joi.string().required(),
         PORT: Joi.number().required(),
       }),

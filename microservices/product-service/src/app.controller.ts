@@ -11,23 +11,18 @@ export class AppController {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  @MessagePattern('get_demo_cache')
-  async getCache(@Payload() data) {
-    console.log(await this.cacheManager.get('DEMO'));
-    return await this.cacheManager.get('DEMO');
-  }
+  // @MessagePattern('get_demo_cache')
+  // async getCache(@Payload() data) {
+  //   console.log(await this.cacheManager.get('DEMO'));
+  //   return await this.cacheManager.get('DEMO');
+  // }
 
-  @MessagePattern('get_product')
-  getProduct(@Payload() data) {
-    console.log(data);
+  // @MessagePattern('get_product')
+  // getProduct(@Payload() data) {
+  //   console.log(data);
 
-    return this.appService.getProduct();
-  }
-
-  @MessagePattern('order_key')
-  orders(@Payload() data) {
-    return this.appService.orders(data);
-  }
+  //   return this.appService.getProduct();
+  // }
 }
 
 // yarn add prisma @prisma/client
